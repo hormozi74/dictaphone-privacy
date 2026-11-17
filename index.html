@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>حریم خصوصی دیکتافون</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap">
+  <style>
+/* ============================================================
+   دیکتافون · Dictaphone — Design tokens
+   ------------------------------------------------------------
+   فلسفه‌ی بصری: اسکلت جدی، لهجه‌ی بازیگوش.
+   ساختار، تایپوگرافی و فاصله‌ها کاملاً کاری و آرام‌اند؛
+   انرژی فقط از سه جا می‌آید: شخصیت دیکتافون، رنگ اکسنت،
+   و ریزحرکت‌ها. هرگز از شلوغی.
+   ============================================================ */
+
+:root {
+  /* --- کاغذ و مرکب: پایه‌ی گرم، نه خاکستری اداری --- */
+  --paper:        #F6F4EF;
+  --paper-2:      #EFEBE3;
+  --surface:      #FFFFFF;
+  --surface-2:    #F4F2EE;
+  --ink:          #17181C;
+  --ink-soft:     #5A5D66;
+  --ink-faint:    #8E9199;
+  --line:         #E2DED5;
+  --line-soft:    #EDEAE3;
+
+  /* --- اکسنت: نارنجی دیکتافون. تنها رنگ پرانرژی محصول --- */
+  --accent:          #FF6B35;
+  --accent-deep:     #D9410B;
+  --accent-soft:     #FFEDE5;
+  --accent-line:     #FFC7AF;
+
+  /* --- ماژیک: فقط برای هایلایت متن، هرگز پس‌زمینه‌ی بزرگ --- */
+  --marker:       #FFE167;
+  --marker-soft:  #FFF6CE;
+
+  /* --- وضعیت‌ها: هر کدام رنگ + شکل دارند، نه فقط رنگ --- */
+  --rec:          #E5484D;
+  --rec-soft:     #FDECEC;
+  --ok:           #1B9C6B;
+  --ok-soft:      #E4F5EE;
+  --wait:         #3D63DD;
+  --wait-soft:    #E8EDFC;
+  --warn:         #A15C07;
+  --warn-soft:    #FDF2DF;
+
+  --f-ui: "Vazirmatn", "SF Pro Text", -apple-system, "Segoe UI", Tahoma, sans-serif;
+  --f-num: "SF Mono", ui-monospace, "IBM Plex Mono", Menlo, monospace;
+
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /* سایه‌ها نرم و کم‌عمق. تضاد از رنگ می‌آید نه از عمق. */
+  --sh-1: 0 1px 2px rgba(23, 24, 28, .06);
+  --sh-2: 0 2px 4px rgba(23, 24, 28, .05), 0 12px 28px -18px rgba(23, 24, 28, .35);
+  --sh-pop: 0 8px 20px -8px rgba(217, 65, 11, .45);
+
+  /* فنر: کمی سرکش، ولی کوتاه. حرکت باید حس شود نه دیده. */
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease: cubic-bezier(.2, .8, .3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #14151A;
+    --paper-2:    #1A1C22;
+    --surface:    #1B1D24;
+    --surface-2:  #23262E;
+    --ink:        #EDEBE6;
+    --ink-soft:   #9CA0AA;
+    --ink-faint:  #70747E;
+    --line:       #2C2F38;
+    --line-soft:  #24272F;
+
+    --accent:        #FF8355;
+    --accent-deep:   #FFAA85;
+    --accent-soft:   #33190F;
+    --accent-line:   #5C2C18;
+
+    --marker:     #C9A21B;
+    --marker-soft:#332B0E;
+
+    --rec:        #FF6369;
+    --rec-soft:   #331416;
+    --ok:         #3DD69A;
+    --ok-soft:    #0F2E23;
+    --wait:       #7A9BFF;
+    --wait-soft:  #171E36;
+    --warn:       #E0A54F;
+    --warn-soft:  #2E2413;
+
+    --sh-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --sh-2: 0 2px 4px rgba(0, 0, 0, .35), 0 12px 28px -18px rgba(0, 0, 0, .9);
+    --sh-pop: 0 8px 20px -8px rgba(255, 107, 53, .5);
+  }
+}
+
+* { box-sizing: border-box; }
+
+/* صفت hidden باید همیشه برنده باشد. بدون این، هر کلاسی که display
+   تعریف کند (مثل .notice یا .row) قانون پیش‌فرض مرورگر را می‌بازد و
+   عنصرِ «پنهان» روی صفحه می‌ماند. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-ui);
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* اعداد فارسی در جریان متن می‌مانند، اعداد کاری تک‌عرض می‌شوند */
+.num {
+  font-family: var(--f-num);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+button:disabled { cursor: not-allowed; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection { background: var(--marker); color: #17181C; }
+
+/* ---------- اسکرول‌بار باریک ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 3px solid var(--paper);
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+/* ============================================================
+   عناصر مشترک
+   ============================================================ */
+
+/* --- دکمه‌ها --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 13px;
+  box-shadow: var(--sh-1);
+  transition: transform .16s var(--spring), background .15s, border-color .15s;
+}
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .45; box-shadow: none; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent-deep);
+  color: #fff;
+  box-shadow: var(--sh-pop);
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-deep); }
+
+.btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-2); }
+
+.btn-danger { color: var(--rec); border-color: var(--line); }
+.btn-danger:hover:not(:disabled) { background: var(--rec-soft); border-color: var(--rec); }
+
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn-icon { width: 30px; padding: 0; }
+
+/* --- کارت --- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--sh-1);
+}
+
+/* --- برچسب وضعیت: رنگ + نقطه‌ی شکل‌دار --- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.pill-ok   { color: var(--ok);   background: var(--ok-soft);   border-color: color-mix(in srgb, var(--ok) 28%, transparent); }
+.pill-wait { color: var(--wait); background: var(--wait-soft); border-color: color-mix(in srgb, var(--wait) 28%, transparent); }
+.pill-rec  { color: var(--rec);  background: var(--rec-soft);  border-color: color-mix(in srgb, var(--rec) 28%, transparent); }
+.pill-warn { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 28%, transparent); }
+.pill-mute { color: var(--ink-faint); background: var(--surface-2); border-color: var(--line); }
+
+/* حالت انتظار: نقطه نفس می‌کشد */
+.pill-wait::before { animation: breathe 1.5s var(--ease) infinite; }
+.pill-rec::before  { animation: blink 1s steps(1) infinite; }
+
+@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+@keyframes blink   { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .25; } }
+
+/* --- هایلایت ماژیکی: تضاد بازیگوش داخل متن جدی --- */
+.mark {
+  background: linear-gradient(transparent 62%, var(--marker) 62%, var(--marker) 94%, transparent 94%);
+  padding: 0 2px;
+}
+
+/* --- کلید روشن/خاموش --- */
+.switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  border: 1px solid var(--line);
+  transition: background .2s var(--ease);
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--sh-1);
+  transition: transform .22s var(--spring);
+}
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent-deep); }
+.switch[aria-checked="true"]::after { transform: translateX(-18px); }
+
+/* --- عنوان بخش --- */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--ink-faint);
+  margin: 0 0 10px;
+}
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* --- حالت خالی: جایی که دیکتافون اجازه دارد شوخی کند --- */
+.empty {
+  text-align: center;
+  padding: 28px 20px;
+  color: var(--ink-soft);
+}
+.empty h4 { margin: 12px 0 4px; font-size: 14px; color: var(--ink); }
+.empty p  { margin: 0; font-size: 12.5px; color: var(--ink-faint); }
+
+/* --- نوار پیشرفت --- */
+.bar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--line-soft);
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width .35s var(--ease);
+}
+
+/* --- اسکلت بارگذاری --- */
+.skel {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line-soft) 50%, var(--surface-2) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--r-sm);
+}
+@keyframes shimmer { to { background-position: -300% 0; } }
+
+/* --- توست --- */
+.toast-host {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 90;
+  pointer-events: none;
+}
+.toast {
+  align-self: center;
+  max-width: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  font-size: 12.5px;
+  box-shadow: var(--sh-2);
+  animation: toast-in .3s var(--spring);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+  </style>
+  <style>
+    body { background: var(--paper); color: var(--ink); font-family: var(--f-ui); margin: 0; }
+    main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; line-height: 1.85; }
+    h1 { font-size: 24px; margin: 0 0 4px; }
+    h2 { font-size: 17px; margin: 28px 0 6px; }
+    .meta { color: var(--ink-faint); font-size: 13px; margin: 0 0 24px; }
+    ul { padding-inline-start: 20px; margin: 6px 0; }
+    li { margin: 3px 0; }
+    section[lang="en"] { direction: ltr; text-align: left; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
+    code { font-family: var(--f-num); font-size: 13px; }
+  </style>
+</head>
+<body>
+<main>
+
+<h1>سیاست حریم خصوصی دیکتافون</h1>
+<p class="meta">آخرین به‌روزرسانی: ۲۶ آبان ۱۴۰۵ (۱۷ نوامبر ۲۰۲۶)</p>
+
+<p>دیکتافون تماس‌هایی را که خودتان در web.bale.ai ضبط می‌کنید، رونویسی و خلاصه می‌کند. این صفحه می‌گوید چه چیزی جمع می‌شود، کجا می‌رود، چه کسی آن را می‌بیند و چطور پاکش کنید.</p>
+
+<h2>چه چیزی جمع می‌شود</h2>
+<ul>
+  <li><b>صدای تماس، فقط وقتی خودتان ضبط را بزنید.</b> صدای طرف‌های تماس از تب بله گرفته می‌شود. صدای خودتان فقط وقتی ضبط می‌شود که در خودِ تماس میکروفونتان باز باشد؛ با میوت‌کردن در بله، ضبط صدای شما هم قطع می‌شود.</li>
+  <li><b>نتیجه‌ی پردازش:</b> رونوشت، خلاصه، تصمیم‌ها، کارهای محول‌شده و عنوان جلسه، به‌علاوه‌ی زمان و مدت جلسه و لحظه‌هایی که علامت زده‌اید.</li>
+  <li><b>حساب:</b> ایمیل، نام و تنظیمات شما.</li>
+  <li><b>کلید Gemini شخصی</b>، اگر وصلش کنید. رمزشده ذخیره می‌شود و هرگز به افزونه برنمی‌گردد.</li>
+  <li><b>داده‌ی فنی:</b> مصرف روزانه (دقیقه‌ی صدا و تعداد پرسش) برای سهمیه‌ی رایگان، و گزارش ده اجرای آخرِ پردازش هر جلسه (زمان، خطا) برای رفع اشکال.</li>
+</ul>
+<p>افزونه از صفحه‌ی بله چیز دیگری نمی‌خواند: نه پیام‌ها و نه مخاطبان. فقط شروع و پایان تماس و باز یا بسته بودن میکروفون را تشخیص می‌دهد. هیچ تبلیغ، ردیاب یا آمارگیری‌ای در کار نیست و هیچ داده‌ای فروخته نمی‌شود.</p>
+
+<h2>اطلاع‌دادن به طرف‌های تماس</h2>
+<p>با شروع هر ضبط، جمله‌ی «این جلسه برای تهیه‌ی صورت‌جلسه ضبط می‌شود» حدود شش ثانیه در خودِ تماس پخش می‌شود تا همه‌ی اعضا بشنوند. این اعلام در تنظیمات قابل خاموش‌کردن است؛ در آن صورت گرفتن رضایتِ دیگران مسئولیت خودِ شماست. پیش از ضبط هر تماسی، قوانین محل زندگی خودتان و طرف‌های تماس را درباره‌ی ضبط مکالمه رعایت کنید.</p>
+
+<h2>داده کجا می‌رود</h2>
+<ul>
+  <li><b>Appwrite Cloud</b> (مرکز داده‌ی فرانکفورت، آلمان): حساب، جلسه‌ها، رونوشت‌ها، خلاصه‌ها و فایل‌های صوتی تا پیش از پردازش.</li>
+  <li><b>Google Gemini API</b>: صدا برای رونویسی و رونوشت برای خلاصه‌سازی و پاسخ به پرسش‌ها به گوگل فرستاده می‌شود.
+    <ul>
+      <li>اگر کلید شخصی وصل نکرده باشید، کلیدِ مشترکِ رایگانِ ما استفاده می‌شود. طبق شرایط گوگل، محتوای پلن رایگان ممکن است برای بهبود محصولات گوگل استفاده شود و بازبینی انسانی داشته باشد.</li>
+      <li>با کلید شخصی، شرایط حساب گوگلِ خودتان حاکم است. با صورتحسابِ فعال، گوگل محتوا را برای آموزش مدل‌هایش استفاده نمی‌کند.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>تا کی نگه داشته می‌شود</h2>
+<ul>
+  <li><b>فایل صوتی خام:</b> بعد از ساخته‌شدنِ موفقِ خلاصه پاک می‌شود، مگر اینکه این کار را در تنظیمات خاموش کرده باشید. اگر پردازش شکست بخورد، صدا می‌ماند تا دوباره تلاش شود.</li>
+  <li><b>نسخه‌ای که به Gemini فرستاده می‌شود:</b> بلافاصله بعد از پردازش پاک می‌شود، چه موفق چه ناموفق.</li>
+  <li><b>رونوشت و خلاصه:</b> تا وقتی خودتان پاکشان کنید.</li>
+  <li><b>ویدئو</b> (اگر روشن باشد): فقط روی کامپیوتر خودتان می‌ماند و هرگز آپلود نمی‌شود.</li>
+</ul>
+
+<h2>چه کسی جلسه را می‌بیند</h2>
+<ul>
+  <li><b>جلسه‌ی اختصاصی:</b> فقط خودتان.</li>
+  <li><b>جلسه‌ی تیمی:</b> همه‌ی اعضای تیمتان.</li>
+  <li><b>ناظر، ادمین و سوپرادمینِ تیمتان</b> جلسه‌هایی را که از زمان پیوستن به تیم ضبط کرده‌اید می‌بینند، <b>حتی جلسه‌های اختصاصی</b>. ادمین و سوپرادمین می‌توانند آن‌ها را ویرایش کنند، و سوپرادمین می‌تواند پاکشان کند. اگر تیم را ترک کنید یا بیرونتان کنند، جلسه‌هایتان دوباره فقط مال خودتان می‌شوند.</li>
+  <li><b>گردانندگان این سرویس</b> از نظر فنی به پایگاه داده دسترسی دارند. از این دسترسی فقط برای نگه‌داری و رفع اشکال استفاده می‌شود.</li>
+</ul>
+
+<h2>پاک‌کردن</h2>
+<ul>
+  <li><b>«حذف»:</b> جلسه را از فهرست برمی‌دارد و قابل برگشت است.</li>
+  <li><b>«حذف کامل»:</b> جلسه، رونوشت و صدایش را برای همیشه از سرور پاک می‌کند.</li>
+  <li><b>«حذف حساب»</b> (تنظیمات ← اتصال به حساب): همه‌ی جلسه‌ها، صداها، کلید شخصی، مصرف، تنظیمات و خودِ حساب را پاک می‌کند.</li>
+</ul>
+
+<h2>تماس</h2>
+<p>پرسش یا درخواستی درباره‌ی داده‌هایتان دارید؟ به <a href="mailto:amir.hormozi.n@gmail.com">amir.hormozi.n@gmail.com</a> بنویسید.</p>
+
+<section lang="en">
+<h1>Dictaphone Privacy Policy</h1>
+<p class="meta">Last updated: 17 November 2026</p>
+
+<p>Dictaphone transcribes and summarises calls you choose to record on web.bale.ai. This page explains what is collected, where it goes, who can see it, and how to delete it.</p>
+
+<h2>What is collected</h2>
+<ul>
+  <li><b>Call audio, only when you start a recording.</b> Other participants' audio is captured from the Bale tab. Your own voice is captured only while your microphone is unmuted in the call itself.</li>
+  <li><b>Processing results:</b> transcript, summary, decisions, action items and title, plus meeting time, duration and the moments you bookmarked.</li>
+  <li><b>Account:</b> email, name and your settings.</li>
+  <li><b>Your personal Gemini API key</b>, if you add one. It is stored encrypted and is never sent back to the extension.</li>
+  <li><b>Technical data:</b> daily usage counters (audio minutes, questions) for the free quota, and a log of the last ten processing runs per meeting (time, error) for troubleshooting.</li>
+</ul>
+<p>The extension reads nothing else from Bale: no messages and no contacts. It only detects when a call starts and ends and whether your microphone is open. There are no ads, trackers or analytics, and no data is sold.</p>
+
+<h2>Notifying participants</h2>
+<p>When a recording starts, “This meeting is being recorded” (in Persian and English) plays inside the call for about six seconds so every participant hears it. You can turn this off in settings; you are then responsible for obtaining the other participants' consent. Follow the call-recording laws that apply to you and to the people you talk to.</p>
+
+<h2>Where data goes</h2>
+<ul>
+  <li><b>Appwrite Cloud</b> (Frankfurt, Germany): account, meetings, transcripts, summaries, and audio files until they are processed.</li>
+  <li><b>Google Gemini API</b>: audio is sent for transcription, and transcripts for summaries and answers.
+    <ul>
+      <li>Without a personal key, our shared free-tier key is used. Under Google's terms, free-tier content may be used to improve Google products and may be reviewed by humans.</li>
+      <li>With your own key, your Google account's terms apply. With billing enabled, Google does not use your content to train its models.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Retention</h2>
+<ul>
+  <li><b>Raw audio:</b> deleted after the summary is produced, unless you turn this off in settings. If processing fails, audio is kept so it can be retried.</li>
+  <li><b>The copy sent to Gemini:</b> always deleted right after processing, whether it succeeds or fails.</li>
+  <li><b>Transcripts and summaries:</b> kept until you delete them.</li>
+  <li><b>Video</b> (if enabled): stays on your computer only and is never uploaded.</li>
+</ul>
+
+<h2>Who can see a meeting</h2>
+<ul>
+  <li><b>A private meeting:</b> only you.</li>
+  <li><b>A team meeting:</b> every member of your team.</li>
+  <li><b>Your team's supervisor, admin and superadmin</b> can see meetings you recorded while a member, <b>including private ones</b>. Admins and superadmins can edit them, and superadmins can delete them. If you leave or are removed from the team, your meetings become yours alone again.</li>
+  <li><b>The operators of this service</b> have technical access to the database. It is used only for maintenance and troubleshooting.</li>
+</ul>
+
+<h2>Deletion</h2>
+<ul>
+  <li><b>“Delete”:</b> removes a meeting from your list, and can be undone.</li>
+  <li><b>“Delete permanently”:</b> erases the meeting, its transcript and its audio from the server.</li>
+  <li><b>“Delete account”</b> (Settings → Account): erases all your meetings, audio, personal key, usage data, settings and the account itself.</li>
+</ul>
+
+<h2>Contact</h2>
+<p>Questions or requests about your data: <a href="mailto:amir.hormozi.n@gmail.com">amir.hormozi.n@gmail.com</a>.</p>
+</section>
+
+</main>
+</body>
+</html>
